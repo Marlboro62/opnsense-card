@@ -1,0 +1,290 @@
+# Carte OPNsense : capteurs sans intégration (package REST pour Home Assistant)
+# https://github.com/Marlboro62/opnsense-card
+#
+# Ce package crée, avec l'intégration REST de base de Home Assistant, les capteurs que lit la
+# carte custom:opnsense-card quand l'intégration OPNsense (HACS) n'est pas installée.
+# C'est Home Assistant qui interroge l'API d'OPNsense : la clé et le secret restent dans
+# secrets.yaml et ne sont jamais envoyés au navigateur.
+#
+# Rien d'autre à adapter que l'adresse : toutes les passerelles et toutes les interfaces
+# sont lues automatiquement.
+#
+# Installation (détails dans le README) :
+#  1. Dans OPNsense, créez un utilisateur dédié avec les privilèges indiqués dans le README,
+#     puis sa clé d'API (Système → Accès → Utilisateurs → icône de clé).
+#  2. Ajoutez dans /config/secrets.yaml :
+#       opnsense_api_key: "la clé"
+#       opnsense_api_secret: "le secret"
+#  3. Copiez ce fichier dans /config/packages/ et activez les packages dans configuration.yaml :
+#       homeassistant:
+#         packages: !include_dir_named packages
+#  4. Remplacez partout https://192.168.1.1 par l'adresse de votre OPNsense (« Remplacer tout »).
+#  5. Vérifiez la configuration (Outils de développement → YAML), puis redémarrez Home Assistant.
+#
+# Adresses de l'API pour OPNsense 25.7 et plus récent. Avant la 25.7, remplacez system_resources
+# par systemResources, system_time par systemTime, system_disk par systemDisk,
+# system_temperature par systemTemperature et get_activity par getActivity.
+#
+# Le certificat d'OPNsense est souvent auto-signé : verify_ssl est donc à false. Si votre OPNsense
+# a un certificat valide (Let's Encrypt), passez-le à true.
+
+rest:
+  # --- Mémoire
+  - resource: https://192.168.1.1/api/diagnostics/system/system_resources
+    username: !secret opnsense_api_key
+    password: !secret opnsense_api_secret
+    authentication: basic
+    verify_ssl: false
+    scan_interval: 30
+    sensor:
+      - name: OPNsense Memory Used Percentage
+        unique_id: opnsense_api_memory_used_percentage
+        unit_of_measurement: "%"
+        state_class: measurement
+        availability: "{{ value_json is defined and value_json.memory is defined and value_json.memory.total | default(0) | float(0) > 0 }}"
+        value_template: "{{ (value_json.memory.used | float(0) / value_json.memory.total | float(1) * 100) | round(1) }}"
+      - name: OPNsense Memory Used
+        unique_id: opnsense_api_memory_used
+        unit_of_measurement: GB
+        device_class: data_size
+        availability: "{{ value_json is defined and value_json.memory is defined and value_json.memory.used | default('') | is_number }}"
+        value_template: "{{ (value_json.memory.used | float(0) / 1e9) | round(2) }}"
+      - name: OPNsense Memory Physmem
+        unique_id: opnsense_api_memory_physmem
+        unit_of_measurement: GB
+        device_class: data_size
+        availability: "{{ value_json is defined and value_json.memory is defined and value_json.memory.total | default('') | is_number }}"
+        value_template: "{{ (value_json.memory.total | float(0) / 1e9) | round(2) }}"
+
+  # --- Démarrage et charge
+  - resource: https://192.168.1.1/api/diagnostics/system/system_time
+    username: !secret opnsense_api_key
+    password: !secret opnsense_api_secret
+    authentication: basic
+    verify_ssl: false
+    scan_interval: 60
+    sensor:
+      - name: OPNsense System Boottime
+        unique_id: opnsense_api_system_boottime
+        device_class: timestamp
+        # uptime : « 12 days, 03:04:05 » ou « 03:04:05 » (le mot « days » peut être traduit)
+        availability: "{{ value_json is defined and value_json.uptime | default('') | regex_match('^(\\d+\\s+\\S+,\\s+)?\\d+:\\d+:\\d+$') }}"
+        value_template: >-
+          {% set u = value_json.uptime %}
+          {% set d = (u | regex_findall_index('^(\\d+)\\s') if u | regex_match('^\\d+\\s') else 0) | int(0) %}
+          {% set t = (u | regex_findall_index('(\\d+:\\d+:\\d+)$')).split(':') %}
+          {% set s = d * 86400 + t[0] | int(0) * 3600 + t[1] | int(0) * 60 + t[2] | int(0) %}
+          {{ (now() - timedelta(seconds=s)).replace(second=0, microsecond=0).isoformat() }}
+      - name: OPNsense System Load Average One Minute
+        unique_id: opnsense_api_load_average_one_minute
+        state_class: measurement
+        availability: "{{ value_json is defined and value_json.loadavg | default('') | string | regex_match('^[\\d.]+, ') }}"
+        value_template: "{{ value_json.loadavg.split(', ')[0] | float(0) }}"
+
+  # --- Table d'états du pare-feu
+  - resource: https://192.168.1.1/api/diagnostics/firewall/pf_states
+    username: !secret opnsense_api_key
+    password: !secret opnsense_api_secret
+    authentication: basic
+    verify_ssl: false
+    scan_interval: 30
+    sensor:
+      - name: OPNsense pf State Table Used Percentage
+        unique_id: opnsense_api_pf_state_table_used_percentage
+        unit_of_measurement: "%"
+        state_class: measurement
+        availability: "{{ value_json is defined and value_json.limit | default(0) | float(0) > 0 }}"
+        value_template: "{{ (value_json.current | float(0) / value_json.limit | float(1) * 100) | round(1) }}"
+
+  # --- Tampons réseau (mbuf)
+  - resource: https://192.168.1.1/api/diagnostics/system/system_mbuf
+    username: !secret opnsense_api_key
+    password: !secret opnsense_api_secret
+    authentication: basic
+    verify_ssl: false
+    scan_interval: 60
+    sensor:
+      - name: OPNsense Memory Buffers Used Percentage
+        unique_id: opnsense_api_memory_buffers_used_percentage
+        unit_of_measurement: "%"
+        state_class: measurement
+        availability: "{{ value_json is defined and (value_json['mbuf-statistics'] | default({}))['mbuf-total'] | default(0) | float(0) > 0 }}"
+        # clusters utilisés / maximum (kern.ipc.nmbclusters) : c'est ce qui sature vraiment ;
+        # mbuf-current / mbuf-total ne compare que l'utilisé au déjà alloué (souvent 70-80 %, sans risque)
+        value_template: >-
+          {% set m = value_json['mbuf-statistics'] %}
+          {% if m['cluster-max'] | default(0) | float(0) > 0 %}
+          {{ (m['cluster-current'] | default(0) | float(0) / m['cluster-max'] | float(1) * 100) | round(1) }}
+          {% else %}
+          {{ (m['mbuf-current'] | float(0) / m['mbuf-total'] | float(1) * 100) | round(1) }}
+          {% endif %}
+
+  # --- Swap
+  - resource: https://192.168.1.1/api/diagnostics/system/system_swap
+    username: !secret opnsense_api_key
+    password: !secret opnsense_api_secret
+    authentication: basic
+    verify_ssl: false
+    scan_interval: 300
+    sensor:
+      - name: OPNsense Memory Swap Used Percentage
+        unique_id: opnsense_api_memory_swap_used_percentage
+        unit_of_measurement: "%"
+        state_class: measurement
+        availability: "{{ value_json is defined and value_json.swap is defined }}"
+        value_template: >-
+          {% set w = value_json.swap[0] if value_json.swap | count > 0 else none %}
+          {{ ((w.used | float(0) / w.total | float(1) * 100) | round(1)) if w and w.total | float(0) > 0 else 0 }}
+
+  # --- Disque (point de montage /)
+  - resource: https://192.168.1.1/api/diagnostics/system/system_disk
+    username: !secret opnsense_api_key
+    password: !secret opnsense_api_secret
+    authentication: basic
+    verify_ssl: false
+    scan_interval: 300
+    sensor:
+      - name: OPNsense Filesystem Used Percentage
+        unique_id: opnsense_api_filesystem_used_percentage_root
+        unit_of_measurement: "%"
+        state_class: measurement
+        availability: "{{ value_json is defined and value_json.devices | default([]) | selectattr('mountpoint', 'eq', '/') | list | count > 0 }}"
+        value_template: "{{ (value_json.devices | selectattr('mountpoint', 'eq', '/') | first).used_pct | float(0) }}"
+
+  # --- Températures (la première sonde ; dupliquez le bloc avec [1], [2]… pour les autres)
+  - resource: https://192.168.1.1/api/diagnostics/system/system_temperature
+    username: !secret opnsense_api_key
+    password: !secret opnsense_api_secret
+    authentication: basic
+    verify_ssl: false
+    scan_interval: 60
+    sensor:
+      - name: OPNsense Temp Sonde 1
+        unique_id: opnsense_api_temp_1
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        availability: "{{ value_json is defined and value_json is list and value_json | count > 0 }}"
+        value_template: "{{ value_json[0].temperature | float(0) }}"
+
+  # --- CPU (« top » côté OPNsense : la réponse met environ 2 secondes à arriver)
+  - resource: https://192.168.1.1/api/diagnostics/activity/get_activity
+    username: !secret opnsense_api_key
+    password: !secret opnsense_api_secret
+    authentication: basic
+    verify_ssl: false
+    scan_interval: 60
+    timeout: 20
+    sensor:
+      - name: OPNsense CPU Usage
+        unique_id: opnsense_api_cpu_usage
+        unit_of_measurement: "%"
+        state_class: measurement
+        # ligne « CPU:  1.2% user,  0.0% nice,  0.8% system,  0.0% interrupt, 98.0% idle »
+        availability: "{{ value_json is defined and value_json.headers | default([]) | select('search', '% idle') | list | count > 0 }}"
+        value_template: >-
+          {% set h = value_json.headers | select('search', '% idle') | first %}
+          {{ (100 - h | regex_findall_index('([\\d.]+)% idle') | float(0)) | round(1) }}
+
+  # --- Passerelles : toutes, dans un seul capteur (« nom,état,latence ms,pertes %,gigue ms|… »)
+  #     état dpinger : none (en ligne), down, loss, delay, delay+loss, force_down
+  - resource: https://192.168.1.1/api/routes/gateway/status
+    username: !secret opnsense_api_key
+    password: !secret opnsense_api_secret
+    authentication: basic
+    verify_ssl: false
+    scan_interval: 30
+    sensor:
+      - name: OPNsense Gateways
+        unique_id: opnsense_api_gateways
+        icon: mdi:router-network
+        availability: "{{ value_json is defined and value_json['items'] is defined }}"
+        value_template: >-
+          {% set ns = namespace(out='') %}
+          {% for g in value_json['items'] %}
+          {% set num = namespace(v=[]) %}
+          {% for k in ['delay', 'loss', 'stddev'] %}
+          {% set x = (g[k] | default('') | string | regex_replace('[^0-9.]', '')) %}
+          {% set num.v = num.v + [x if x | is_number else ''] %}
+          {% endfor %}
+          {% set item = (g.name | string | replace('|', '') | replace(',', '')) ~ ',' ~ g.status | default('') ~ ',' ~ num.v | join(',') %}
+          {% set sep = '|' if ns.out else '' %}
+          {% if (ns.out ~ sep ~ item) | length <= 255 %}{% set ns.out = ns.out ~ sep ~ item %}{% endif %}
+          {% endfor %}
+          {{ ns.out if ns.out else '-' }}
+
+  # --- Interfaces : toutes, dans un seul capteur (« heure|nom,octets reçus,octets envoyés|… »)
+  #     la carte calcule elle-même les débits entre deux relevés
+  - resource: https://192.168.1.1/api/diagnostics/traffic/interface
+    username: !secret opnsense_api_key
+    password: !secret opnsense_api_secret
+    authentication: basic
+    verify_ssl: false
+    scan_interval: 15
+    sensor:
+      - name: OPNsense Traffic
+        unique_id: opnsense_api_traffic
+        icon: mdi:swap-vertical
+        availability: "{{ value_json is defined and value_json.interfaces is defined and value_json.interfaces is mapping }}"
+        value_template: >-
+          {% set ns = namespace(out=(value_json.time | float(0) | round(2)) | string) %}
+          {% for k, v in value_json.interfaces.items() %}
+          {% set name = (v.name | default(k) | string | replace('|', '') | replace(',', ''))[:16] %}
+          {% set item = '|' ~ name ~ ',' ~ (v.inbytes | float(0) | int(0)) ~ ',' ~ (v.outbytes | float(0) | int(0)) %}
+          {% if (ns.out ~ item) | length <= 255 %}{% set ns.out = ns.out ~ item %}{% endif %}
+          {% endfor %}
+          {{ ns.out }}
+
+  # --- Version d'OPNsense (privilège « System: Firmware » : retirez ce bloc pour ne pas le donner)
+  - resource: https://192.168.1.1/api/core/firmware/status
+    username: !secret opnsense_api_key
+    password: !secret opnsense_api_secret
+    authentication: basic
+    verify_ssl: false
+    scan_interval: 3600
+    sensor:
+      - name: OPNsense Firmware Installed Version
+        unique_id: opnsense_api_firmware_installed_version
+        availability: "{{ value_json is defined and value_json.product is defined and value_json.product.product_version is defined }}"
+        value_template: "{{ value_json.product.product_version }}"
+      - name: OPNsense Firmware Latest Version
+        unique_id: opnsense_api_firmware_latest_version
+        availability: "{{ value_json is defined and value_json.product is defined and value_json.product.product_latest is defined }}"
+        value_template: "{{ value_json.product.product_latest }}"
+
+# Mise à jour disponible : comparaison de la version installée et de la dernière version connue
+template:
+  - binary_sensor:
+      - name: OPNsense Firmware Updates Available
+        unique_id: opnsense_api_firmware_updates_available
+        device_class: update
+        availability: "{{ has_value('sensor.opnsense_firmware_installed_version') }}"
+        state: >-
+          {% set i = states('sensor.opnsense_firmware_installed_version') %}
+          {% set l = states('sensor.opnsense_firmware_latest_version') %}
+          {{ has_value('sensor.opnsense_firmware_latest_version') and l != i }}
+        attributes:
+          installed_version: "{{ states('sensor.opnsense_firmware_installed_version') }}"
+          latest_version: "{{ states('sensor.opnsense_firmware_latest_version') }}"
+
+# Facultatif : boutons Redémarrer et Arrêter de la carte. Il faut alors donner aussi à l'utilisateur
+# d'API les privilèges « Diagnostics: Reboot System » et « Diagnostics: Halt system ».
+# Décommentez ce bloc seulement si vous voulez ces boutons.
+#
+# rest_command:
+#   opnsense_reboot:
+#     url: https://192.168.1.1/api/core/system/reboot
+#     method: post
+#     username: !secret opnsense_api_key
+#     password: !secret opnsense_api_secret
+#     verify_ssl: false
+#     content_type: application/json
+#     payload: "{}"
+#   opnsense_halt:
+#     url: https://192.168.1.1/api/core/system/halt
+#     method: post
+#     username: !secret opnsense_api_key
+#     password: !secret opnsense_api_secret
+#     verify_ssl: false
+#     content_type: application/json
+#     payload: "{}"
