@@ -34,11 +34,11 @@ Carte Lovelace pour suivre un pare-feu **OPNsense** dans Home Assistant : passer
 
 | Normal | Chargé, mise à jour | WAN hors ligne |
 | --- | --- | --- |
-| ![OPNsense](images/opnsense.png) | ![OPNsense chargé](images/opnsense-charge.png) | ![WAN hors ligne](images/opnsense-wan.png) |
+| ![OPNsense](https://raw.githubusercontent.com/Marlboro62/opnsense-card/main/images/opnsense.png) | ![OPNsense chargé](https://raw.githubusercontent.com/Marlboro62/opnsense-card/main/images/opnsense-charge.png) | ![WAN hors ligne](https://raw.githubusercontent.com/Marlboro62/opnsense-card/main/images/opnsense-wan.png) |
 
 | Clair, sur PC | Sans intégration (package REST) |
 | --- | --- |
-| ![OPNsense clair](images/opnsense-clair.png) | ![Package REST](images/opnsense-rest.png) |
+| ![OPNsense clair](https://raw.githubusercontent.com/Marlboro62/opnsense-card/main/images/opnsense-clair.png) | ![Package REST](https://raw.githubusercontent.com/Marlboro62/opnsense-card/main/images/opnsense-rest.png) |
 
 *Aperçus réalisés avec la démo et des valeurs fictives (noms, adresses IP et débits inventés).*
 
