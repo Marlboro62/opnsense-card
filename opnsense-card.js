@@ -10,7 +10,7 @@
  */
 
 (() => {
-const CARD_VERSION = "0.1.1";
+const CARD_VERSION = "0.2.0-beta.1";
 
 
 /* ------------------------------------------------------------- affichage */
@@ -57,11 +57,11 @@ ha-card.srv-alert { border-color: var(--t-red); }
 .srv-led.ok i { background: var(--med-down); } .srv-led.bad i { background: var(--t-red); } .srv-led.bad { border-color: var(--t-red); }
 .srv-sec { margin: 12px 12px 0; }
 .srv-h { display: flex; align-items: center; gap: 6px; font-size: .86rem; font-weight: 600; margin: 0 2px 8px; }
-.srv-h ha-icon { --mdc-icon-size: 18px; color: var(--med-blue); }
+.srv-h ha-icon { --mdc-icon-size: 18px; color: var(--med-accent, var(--med-blue)); }
 .srv-tiles { margin: 0 !important; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)) !important; }
 .srv-t { cursor: pointer; }
 .srv-t .tile-l { display: flex; align-items: center; gap: 6px; font-weight: 600; color: var(--med-text); margin-bottom: 4px; }
-.srv-t .tile-l ha-icon, .srv-b ha-icon { --mdc-icon-size: 18px; color: var(--med-blue); }
+.srv-t .tile-l ha-icon, .srv-b ha-icon { --mdc-icon-size: 18px; color: var(--med-accent, var(--med-blue)); }
 .srv-t .tile-v { font-size: 1.2rem; }
 .srv-kv { display: flex; justify-content: space-between; gap: 8px; font-size: .78rem; color: var(--med-muted); }
 .srv-kv b { color: var(--med-text); font-weight: 600; text-align: right; }
@@ -73,8 +73,8 @@ ha-card.srv-alert { border-color: var(--t-red); }
 .srv-gt b { font-size: 1.15rem; white-space: nowrap; flex: none; }
 .srv-gt small { font-size: .74rem; font-weight: 500; color: var(--med-muted); }
 .g-bar { position: relative; height: 8px; border-radius: 6px; background: var(--med-line); margin: 8px 0 2px; overflow: hidden; }
-.g-bar i { display: block; height: 100%; border-radius: 6px; background: var(--med-blue); }
-.g-bar.b-ok i { background: linear-gradient(90deg, var(--med-blue), var(--med-green)); }
+.g-bar i { display: block; height: 100%; border-radius: 6px; background: var(--med-accent, var(--med-blue)); }
+.g-bar.b-ok i { background: linear-gradient(90deg, var(--med-accent, var(--med-blue)), var(--med-green)); }
 .g-bar.b-warn i { background: #f0a33a; } .g-bar.b-alert i { background: var(--t-red); }
 .srv-in .g-bar i { background: var(--med-down); } .srv-out .g-bar i { background: var(--med-up); }
 .srv-wide { grid-column: 1 / -1; }
@@ -117,8 +117,8 @@ const PVE_STYLE = `<style>
 .pve-tab { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; white-space: nowrap;
   border: 1px solid var(--med-line); background: var(--med-surface); font-size: .82rem; font-weight: 600; }
 .pve-tab small { color: var(--med-muted); font-weight: 500; }
-.pve-tab.on { border-color: var(--med-blue); box-shadow: inset 0 -2px 0 var(--med-blue); }
-.pve-tab:focus-visible { outline: 2px solid var(--med-blue); }
+.pve-tab.on { border-color: var(--med-accent, var(--med-blue)); box-shadow: inset 0 -2px 0 var(--med-accent, var(--med-blue)); }
+.pve-tab:focus-visible { outline: 2px solid var(--med-accent, var(--med-blue)); }
 .pve-up { --mdc-icon-size: 15px; color: #f0a33a; }
 .pve-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex: none; background: var(--med-muted); }
 .pve-dot.ok { background: var(--med-down); } .pve-dot.bad { background: var(--t-red); } .pve-dot.warn { background: #f0a33a; }
@@ -134,7 +134,7 @@ const PVE_STYLE = `<style>
 .pve-g { padding: 8px 10px; border-radius: 12px; border: 1px solid var(--med-line); background: var(--med-surface); cursor: pointer; }
 .pve-gh { padding: 0 10px; font-size: .7rem; color: var(--med-muted); }
 .pve-g.off { opacity: .55; }
-.pve-gi { --mdc-icon-size: 20px; color: var(--med-blue); }
+.pve-gi { --mdc-icon-size: 20px; color: var(--med-accent, var(--med-blue)); }
 .pve-gn { min-width: 0; display: grid; }
 .pve-gn b { font-size: .86rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pve-gn span { display: flex; align-items: center; gap: 5px; font-size: .72rem; color: var(--med-muted); white-space: nowrap; overflow: hidden; }
@@ -144,8 +144,8 @@ const PVE_STYLE = `<style>
 .pve-btn { all: unset; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: 30px; height: 30px; padding: 0 6px; box-sizing: border-box;
   border-radius: 9px; border: 1px solid var(--med-line); color: var(--med-muted); font-size: .74rem; font-weight: 700; }
 .pve-btn ha-icon { --mdc-icon-size: 17px; }
-.pve-btn:hover { border-color: var(--med-blue); color: var(--med-text); }
-.pve-btn:focus-visible { outline: 2px solid var(--med-blue); }
+.pve-btn:hover { border-color: var(--med-accent, var(--med-blue)); color: var(--med-text); }
+.pve-btn:focus-visible { outline: 2px solid var(--med-accent, var(--med-blue)); }
 .pve-btn.go { color: var(--med-down); border-color: color-mix(in srgb, var(--med-down) 45%, transparent); }
 .pve-btn.stop { color: var(--t-red); border-color: color-mix(in srgb, var(--t-red) 40%, transparent); }
 .pve-btn.armed { color: #f0a33a; border-color: #f0a33a; background: color-mix(in srgb, #f0a33a 18%, transparent); animation: pve-pulse 1s ease-in-out infinite; }
@@ -180,7 +180,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .brand { display: flex; align-items: center; gap: 10px; }
 .brand svg { width: 34px; height: 34px; fill: none; }
 .brand .house { stroke: var(--med-green); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
-.brand .bolt { fill: var(--med-blue); }
+.brand .bolt { fill: var(--med-accent, var(--med-blue)); }
 .title { font-size: 1.15rem; font-weight: 700; letter-spacing: .2px; }
 .sub { font-size: .78rem; color: var(--med-muted); }
 .tempo { display: flex; gap: 8px; }
@@ -241,7 +241,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .day b { color: var(--med-text); font-size: .78rem; }
 .day .dot { width: 6px; height: 6px; margin-top: 2px; }
 .day.on { background: var(--med-surface); }
-.day:focus-visible { outline: 2px solid var(--med-blue); }
+.day:focus-visible { outline: 2px solid var(--med-accent, var(--med-blue)); }
 
 .detail { margin: 8px 12px 0; padding: 10px 12px; border-radius: 12px; background: var(--med-surface); border: 1px solid var(--med-line); }
 .detail-h { display: flex; align-items: center; gap: 8px; font-size: .8rem; color: var(--med-muted); }
@@ -256,7 +256,7 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .power.is-over { border-color: var(--t-red); }
 .power-t { display: flex; justify-content: space-between; font-size: .85rem; }
 .gauge { height: 6px; border-radius: 6px; background: var(--med-line); margin: 8px 0 6px; overflow: hidden; }
-.gauge i { display: block; height: 100%; background: linear-gradient(90deg, var(--med-green), var(--med-blue)); }
+.gauge i { display: block; height: 100%; background: linear-gradient(90deg, var(--med-green), var(--med-accent, var(--med-blue))); }
 .is-over .gauge i { background: var(--t-red); }
 .power-n { font-size: .75rem; color: var(--med-muted); }
 
@@ -270,6 +270,9 @@ footer { padding: 10px 18px 14px; font-size: .7rem; color: var(--med-muted); }
 .empty span { color: var(--med-muted); }
 /* Thème Home Assistant : fond, textes et bordures suivent le thème clair ou sombre */
 ha-card.th-ha {
+  /* accent (icônes, onglets, sélections, contours) : couleur principale du thème */
+  --med-accent: var(--primary-color, #1d93e3);
+  --med-on-accent: var(--text-primary-color, #fff);
   --med-bg: var(--ha-card-background, var(--card-background-color, #fff));
   --med-surface: color-mix(in srgb, var(--primary-text-color, #000) 5%, transparent);
   --med-line: var(--divider-color, rgba(127, 127, 127, .25));
@@ -562,7 +565,7 @@ class OpnsenseCard extends HTMLElement {
     const found = Object.keys(m.roles).length || Object.keys(m.gws).length || Object.keys(m.ifaces).length || m.gwAll || m.traffic;
     if (!found) {
       this.shadowRoot.innerHTML = `${STYLE}${SRV_STYLE}${PVE_STYLE}<ha-card class="${themeClass(c.theme, this._hass)}">
-        <header><div class="brand"><ha-icon class="srv-icon" icon="${esc(c.icon || "mdi:wall-fire")}" style="color:${esc(c.icon_color || "var(--med-blue)")}"></ha-icon><div><div class="title">${esc(c.title || "OPNsense")}</div></div></div></header>
+        <header><div class="brand"><ha-icon class="srv-icon" icon="${esc(c.icon || "mdi:wall-fire")}" style="color:${esc(c.icon_color || "var(--med-accent, var(--med-blue))")}"></ha-icon><div><div class="title">${esc(c.title || "OPNsense")}</div></div></div></header>
         <div class="empty">Aucun pare-feu OPNsense trouvé<span>Installez l'intégration OPNsense (HACS : travisghansen/hass-opnsense), ou le package REST fourni avec la carte (packages/opnsense.yaml), puis rechargez la page.</span></div></ha-card>`;
       return;
     }
@@ -653,7 +656,7 @@ class OpnsenseCard extends HTMLElement {
     const alertCls = gwDown.length ? "srv-alert" : "";
     this.shadowRoot.innerHTML = `${STYLE}${SRV_STYLE}${PVE_STYLE}${OPN_STYLE}<ha-card class="${themeClass(c.theme, this._hass)} ${alertCls}">
       <header>
-        <div class="brand"><ha-icon class="srv-icon" icon="${esc(c.icon || "mdi:wall-fire")}" style="color:${esc(c.icon_color || "var(--med-blue)")}"></ha-icon>
+        <div class="brand"><ha-icon class="srv-icon" icon="${esc(c.icon || "mdi:wall-fire")}" style="color:${esc(c.icon_color || "var(--med-accent, var(--med-blue))")}"></ha-icon>
           <div><div class="title">${esc(m.name)}</div>${sub ? `<div class="sub">${esc(sub)}</div>` : ""}</div></div>
         ${leds ? `<div class="srv-leds">${leds}</div>` : ""}
       </header>
