@@ -10,7 +10,7 @@
  */
 
 (() => {
-const CARD_VERSION = "0.2.0";
+const CARD_VERSION = "0.2.1";
 
 
 /* ------------------------------------------------------------- affichage */
@@ -580,7 +580,7 @@ class OpnsenseCard extends HTMLElement {
     const upd = this._st(m.update), updOn = upd?.state === "on";
     const notice = this._st(m.notices)?.state === "on";
     const leds = [
-      gws.length ? led(!gwDown.length, gwDown.length > 1 ? `${gwDown.length} passerelles hors ligne` : gwDown.length ? `${gwDown[0].name} hors ligne` : "Passerelles", (gwDown[0] || gws[0]).status) : "",
+      gws.length ? led(!gwDown.length, gwDown.length > 1 ? `${gwDown.length} passerelles hors ligne` : gwDown.length ? `${esc(gwDown[0].name)} hors ligne` : "Passerelles", (gwDown[0] || gws[0]).status) : "",
       upd ? `<span class="srv-led ${updOn ? "upd" : "ok"}" data-entity="${esc(m.update)}"><i></i>${updOn ? "Mise à jour" : "À jour"}</span>` : "",
       notice ? led(false, "Alertes", m.notices) : "",
     ].join("");
