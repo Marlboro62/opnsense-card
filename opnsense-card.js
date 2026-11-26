@@ -13,12 +13,262 @@
 const CARD_VERSION = "0.2.1";
 
 
-/* ------------------------------------------------------------- affichage */
+const TEXT = {
+  fr: {
+    cardName: "Carte OPNsense",
+    cardDescription: "Pare-feu OPNsense : passerelles (état, latence, pertes), débits des interfaces, CPU, RAM, table d'états, températures, mise à jour, redémarrage confirmé.",
+    empty: "Aucun pare-feu OPNsense trouvé",
+    emptyHelp: "Installez l'intégration OPNsense (HACS : travisghansen/hass-opnsense), ou le package REST fourni avec la carte (packages/opnsense.yaml), puis rechargez la page.",
+    info: "Informations",
+    resources: "Ressources",
+    gateways: "Passerelles",
+    interfaces: "Interfaces",
+    actions: "Actions",
+    alerts: "Alertes",
+    uptime: "Uptime",
+    uptimeDays: "{days} j {hours} h",
+    uptimeHours: "{hours} h {minutes} min",
+    uptimeMinutes: "{minutes} min",
+    update: "Mise à jour",
+    upToDate: "À jour",
+    available: "Dispo",
+    version: "Version",
+    status: "État",
+    install: "À installer",
+    dhcp: "Baux DHCP",
+    load: "Charge",
+    disk: "Disque",
+    temperatureProbe: "Sonde {number}",
+    stateTable: "Table d'états",
+    buffers: "Tampons réseau",
+    usedAllocated: "utilisés / alloués",
+    gigabyte: "Go",
+    online: "En ligne",
+    offline: "Hors ligne",
+    loss: "Pertes",
+    latency: "Latence",
+    latencyLoss: "Latence et pertes",
+    disabled: "Désactivée",
+    unknown: "Inconnu",
+    unavailable: "Indisponible",
+    unmonitored: "En ligne · sans surveillance",
+    jitter: "Gigue",
+    gatewayDown: "{name} hors ligne",
+    gatewaysDownOne: "{count} passerelle hors ligne",
+    gatewaysDownMany: "{count} passerelles hors ligne",
+    gatewayDegraded: "passerelle dégradée",
+    internetOk: "Internet OK",
+    connected: "Connectée",
+    disconnected: "Déconnectée",
+    receivedSent: "Reçu · envoyé",
+    received: "Reçu",
+    sent: "Envoyé",
+    reboot: "Redémarrer",
+    halt: "Arrêter",
+    confirm: "Confirmer",
+    confirmAction: "Confirmer : {action}",
+    confirmHint: "{action} : cliquez encore pour confirmer",
+    rebootWarning: "Le redémarrage coupe Internet le temps du démarrage (et Home Assistant s'il passe par ce pare-feu).",
+    editor: {
+      title: "Titre (vide = nom du pare-feu)",
+      icon: "Icône",
+      icon_color: "Couleur de l'icône",
+      device: "Pare-feu OPNsense (vide = le premier)",
+      prefix: "Sans intégration : début du nom des capteurs du package REST (vide = opnsense)",
+      interfaces: "Interfaces affichées (vide = toutes celles qui ont des débits)",
+      show_info: "Section Informations (uptime, version, baux DHCP, charge)",
+      show_resources: "Section Ressources (CPU, RAM, disque, tables, températures)",
+      show_gateways: "Section Passerelles (état, latence, pertes)",
+      show_interfaces: "Section Interfaces (débits)",
+      show_actions: "Boutons redémarrer et arrêter (deux clics)",
+      theme: "Couleurs de la carte",
+      language: "Langue de la carte",
+    },
+    languageAuto: "Automatique (Home Assistant)",
+    languageHelp: "Par défaut : français. Le mode automatique suit la langue de votre profil Home Assistant.",
+    themeV2: "Style MyElectricalData (bleu nuit)",
+    themeAuto: "Style MyElectricalData, clair ou sombre selon Home Assistant",
+    themeHa: "Thème Home Assistant (clair ou sombre)",
+  },
+  en: {
+    cardName: "OPNsense Card",
+    cardDescription: "OPNsense firewall: gateways (status, latency, packet loss), interface traffic, CPU, RAM, state table, temperatures, firmware updates and restart with confirmation.",
+    empty: "No OPNsense firewall found",
+    emptyHelp: "Install the OPNsense integration (HACS: travisghansen/hass-opnsense) or the REST package included with the card (packages/opnsense.yaml), then refresh the page.",
+    info: "Information",
+    resources: "Resources",
+    gateways: "Gateways",
+    interfaces: "Interfaces",
+    actions: "Actions",
+    alerts: "Alerts",
+    uptime: "Uptime",
+    uptimeDays: "{days} d {hours} h",
+    uptimeHours: "{hours} h {minutes} min",
+    uptimeMinutes: "{minutes} min",
+    update: "Update available",
+    upToDate: "Up to date",
+    available: "Available",
+    version: "Version",
+    status: "Status",
+    install: "Ready to install",
+    dhcp: "DHCP leases",
+    load: "Load",
+    disk: "Disk",
+    temperatureProbe: "Probe {number}",
+    stateTable: "State table",
+    buffers: "Network buffers",
+    usedAllocated: "used / allocated",
+    gigabyte: "GB",
+    online: "Online",
+    offline: "Offline",
+    loss: "Loss",
+    latency: "Latency",
+    latencyLoss: "Latency and packet loss",
+    disabled: "Disabled",
+    unknown: "Unknown",
+    unavailable: "Unavailable",
+    unmonitored: "Online · no monitoring",
+    jitter: "Jitter",
+    gatewayDown: "{name} offline",
+    gatewaysDownOne: "{count} gateway offline",
+    gatewaysDownMany: "{count} gateways offline",
+    gatewayDegraded: "gateway degraded",
+    internetOk: "Internet OK",
+    connected: "Connected",
+    disconnected: "Disconnected",
+    receivedSent: "Received · sent",
+    received: "Received",
+    sent: "Sent",
+    reboot: "Restart",
+    halt: "Shut down",
+    confirm: "Confirm",
+    confirmAction: "Confirm: {action}",
+    confirmHint: "{action}: click again to confirm",
+    rebootWarning: "Restarting temporarily disconnects the internet and Home Assistant if it connects through this firewall.",
+    editor: {
+      title: "Title (leave blank to use the firewall name)",
+      icon: "Icon",
+      icon_color: "Icon color",
+      device: "OPNsense firewall (leave blank to use the first detected)",
+      prefix: "REST package sensor prefix (leave blank to use opnsense)",
+      interfaces: "Interfaces to display (leave blank to show all with traffic data)",
+      show_info: "Information section (uptime, version, DHCP leases, load)",
+      show_resources: "Resources section (CPU, RAM, disk, tables, temperatures)",
+      show_gateways: "Gateways section (status, latency, packet loss)",
+      show_interfaces: "Interfaces section (traffic)",
+      show_actions: "Restart and shut down buttons (two clicks)",
+      theme: "Card colors",
+      language: "Card language",
+    },
+    languageAuto: "Automatic (Home Assistant)",
+    languageHelp: "Default: French. Automatic mode uses your Home Assistant profile language.",
+    themeV2: "MyElectricalData style (midnight blue)",
+    themeAuto: "MyElectricalData style, light or dark to match Home Assistant",
+    themeHa: "Home Assistant theme (light or dark)",
+  },
+  it: {
+    cardName: "Scheda OPNsense",
+    cardDescription: "Firewall OPNsense: gateway (stato, latenza, perdita di pacchetti), traffico delle interfacce, CPU, RAM, tabella degli stati, temperature, aggiornamenti e riavvio con conferma.",
+    empty: "Nessun firewall OPNsense trovato",
+    emptyHelp: "Installa l'integrazione OPNsense (HACS: travisghansen/hass-opnsense) o il pacchetto REST incluso con la scheda (packages/opnsense.yaml), poi ricarica la pagina.",
+    info: "Informazioni",
+    resources: "Risorse",
+    gateways: "Gateway",
+    interfaces: "Interfacce",
+    actions: "Azioni",
+    alerts: "Avvisi",
+    uptime: "Tempo di attività",
+    uptimeDays: "{days} g {hours} h",
+    uptimeHours: "{hours} h {minutes} min",
+    uptimeMinutes: "{minutes} min",
+    update: "Aggiornamento",
+    upToDate: "Aggiornato",
+    available: "Disponibile",
+    version: "Versione",
+    status: "Stato",
+    install: "Da installare",
+    dhcp: "Lease DHCP",
+    load: "Carico",
+    disk: "Disco",
+    temperatureProbe: "Sonda {number}",
+    stateTable: "Tabella degli stati",
+    buffers: "Buffer di rete",
+    usedAllocated: "in uso / allocati",
+    gigabyte: "GB",
+    online: "Online",
+    offline: "Offline",
+    loss: "Perdita",
+    latency: "Latenza",
+    latencyLoss: "Latenza e perdita di pacchetti",
+    disabled: "Disabilitato",
+    unknown: "Sconosciuto",
+    unavailable: "Non disponibile",
+    unmonitored: "Online · senza monitoraggio",
+    jitter: "Jitter",
+    gatewayDown: "{name} offline",
+    gatewaysDownOne: "{count} gateway offline",
+    gatewaysDownMany: "{count} gateway offline",
+    gatewayDegraded: "gateway degradato",
+    internetOk: "Internet OK",
+    connected: "Connessa",
+    disconnected: "Disconnessa",
+    receivedSent: "Ricezione · invio",
+    received: "Ricezione",
+    sent: "Invio",
+    reboot: "Riavvia",
+    halt: "Spegni",
+    confirm: "Conferma",
+    confirmAction: "Conferma: {action}",
+    confirmHint: "{action}: fai di nuovo clic per confermare",
+    rebootWarning: "Il riavvio interrompe la connessione a Internet (e l'accesso a Home Assistant se passa da questo firewall) fino al completamento dell'avvio.",
+    editor: {
+      title: "Titolo (se vuoto, usa il nome del firewall)",
+      icon: "Icona",
+      icon_color: "Colore dell'icona",
+      device: "Firewall OPNsense (se vuoto, usa il primo rilevato)",
+      prefix: "Senza integrazione: prefisso dei sensori del pacchetto REST (se vuoto, usa opnsense)",
+      interfaces: "Interfacce visualizzate (se vuoto, mostra tutte quelle con i dati di traffico)",
+      show_info: "Sezione Informazioni (tempo di attività, versione, lease DHCP, carico)",
+      show_resources: "Sezione Risorse (CPU, RAM, disco, tabelle, temperature)",
+      show_gateways: "Sezione Gateway (stato, latenza, perdita di pacchetti)",
+      show_interfaces: "Sezione Interfacce (traffico)",
+      show_actions: "Pulsanti di riavvio e spegnimento (due clic)",
+      theme: "Colori della scheda",
+      language: "Lingua della scheda",
+    },
+    languageAuto: "Automatica (Home Assistant)",
+    languageHelp: "Predefinita: francese. La modalità automatica segue la lingua del tuo profilo Home Assistant.",
+    themeV2: "Stile MyElectricalData (blu notte)",
+    themeAuto: "Stile MyElectricalData, chiaro o scuro secondo Home Assistant",
+    themeHa: "Tema Home Assistant (chiaro o scuro)",
+  },
+};
 
-const fmt = (n, digits = 1) =>
-  n === null || n === undefined
-    ? "—"
-    : Number(n).toLocaleString("fr-FR", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+const LANGUAGE_NAMES = { fr: "Français", en: "English", it: "Italiano" };
+
+const normalizeLanguage = (value) => {
+  if (typeof value !== "string") return "fr";
+  const tag = value.trim().replace(/_/g, "-").toLowerCase();
+  if (tag === "auto") return tag;
+  try {
+    const { language } = new Intl.Locale(tag);
+    if (Object.hasOwn(TEXT, language)) return language;
+  } catch {
+    // An invalid locale falls back to French.
+  }
+  return "fr";
+};
+
+const cardLanguage = (value, hass) => {
+  const language = normalizeLanguage(value);
+  if (language !== "auto") return language;
+  const detected = normalizeLanguage(hass?.locale?.language || hass?.language);
+  return detected === "auto" ? "fr" : detected;
+};
+
+const interpolate = (text, values) => text.replace(/\{(\w+)\}/g, (_, key) => values[key]);
+
+/* ------------------------------------------------------------- affichage */
 
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
@@ -34,12 +284,14 @@ const themeClass = (theme, hass) => {
 };
 
 
-const since = (iso) => {
+const since = (iso, text, fmt) => {
   const t = new Date(iso).getTime();
   if (!Number.isFinite(t)) return null;
   const m = Math.max(0, Math.floor((Date.now() - t) / 60000));
   const d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mn = m % 60;
-  return d ? `${d} j ${h} h` : h ? `${h} h ${String(mn).padStart(2, "0")} min` : `${mn} min`;
+  if (d) return interpolate(text.uptimeDays, { days: fmt(d, 0), hours: fmt(h, 0) });
+  if (h) return interpolate(text.uptimeHours, { hours: fmt(h, 0), minutes: fmt(mn, 0).padStart(2, "0") });
+  return interpolate(text.uptimeMinutes, { minutes: fmt(mn, 0) });
 };
 
 
@@ -298,60 +550,6 @@ ha-card.light .tag.t-white { color: #1f2937; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>`;
 
-/* ----------------------------------------------------------------- éditeur */
-
-const THEME_SELECT = {
-  name: "theme",
-  selector: {
-    select: {
-      mode: "dropdown",
-      options: [
-        { value: "v2", label: "Style MyElectricalData (bleu nuit)" },
-        { value: "auto", label: "Style MyElectricalData, clair ou sombre selon Home Assistant" },
-        { value: "ha", label: "Thème Home Assistant (clair ou sombre)" },
-      ],
-    },
-  },
-};
-
-/** Éditeur visuel : formulaire Home Assistant construit à partir du schéma. */
-function makeEditor(schema, labels, defaults) {
-  const hasDays = schema.some((s) => s.name === "days");
-  return class extends HTMLElement {
-    setConfig(config) {
-      this._config = { ...config };
-      this._draw();
-    }
-
-    set hass(hass) {
-      this._hass = hass;
-      if (this._form) this._form.hass = hass;
-      else this._draw();
-    }
-
-    _draw() {
-      if (!this._hass || !this._config) return;
-      if (!this._form) {
-        this._form = document.createElement("ha-form");
-        this._form.computeLabel = (s) => labels[s.name] || s.name;
-        this._form.addEventListener("value-changed", (ev) => {
-          const v = { ...ev.detail.value };
-          if (hasDays && v.days !== undefined) v.days = Number(v.days);
-          this._config = v;
-          this.dispatchEvent(new CustomEvent("config-changed", { detail: { config: v }, bubbles: true, composed: true }));
-        });
-        this.appendChild(this._form);
-      }
-      this._form.hass = this._hass;
-      this._form.schema = schema;
-      this._form.data = hasDays
-        ? { ...defaults, ...this._config, days: String(this._config.days || defaults.days) }
-        : { ...defaults, ...this._config };
-    }
-  };
-}
-
-
 /* ============================================================== OPNsense */
 
 /*
@@ -375,14 +573,21 @@ const OPN_ROLES = [
   ["load1", /_system_load_average_one_minute$/], ["boot", /_system_boottime$/], ["dhcp", /_dhcp_leases_all$/], ["certs", /_certificates$/],
   ["disk", /_filesystem_used_percentage(?:_root)?$/], ["ups", /_ups_status$/], ["ups_batt", /_ups_battery_charge$/],
 ];
-/** État d'une passerelle (dpinger) et d'une interface, en français. */
-const OPN_GW = { online: ["En ligne", "ok"], none: ["En ligne", "ok"], down: ["Hors ligne", "bad"], loss: ["Pertes", "warn"], delay: ["Latence", "warn"], delay_loss: ["Latence et pertes", "warn"], force_down: ["Désactivée", "off"], offline: ["Hors ligne", "bad"], latency: ["Latence", "warn"], packetloss: ["Pertes", "warn"] };
-const opnGw = (s) => OPN_GW[String(s ?? "").toLowerCase().replace(/[+\s]+/g, "_")] || [s ? String(s) : "Inconnu", "off"];
+/** Clé de traduction et niveau d'une passerelle (dpinger). */
+const OPN_GW = {
+  online: ["online", "ok"], none: ["online", "ok"], down: ["offline", "bad"], offline: ["offline", "bad"],
+  loss: ["loss", "warn"], packetloss: ["loss", "warn"], delay: ["latency", "warn"], latency: ["latency", "warn"],
+  delay_loss: ["latencyLoss", "warn"], force_down: ["disabled", "off"], unknown: ["unknown", "off"], unavailable: ["unavailable", "off"],
+};
+const opnGw = (state) => {
+  const key = String(state || "unknown").toLowerCase().replace(/[+\s]+/g, "_");
+  return Object.hasOwn(OPN_GW, key) ? OPN_GW[key] : [null, "off"];
+};
 /** Débit en bit/s d'un capteur, selon son unité (kB/s par défaut de l'intégration, ou converti par Home Assistant). */
 const OPN_RATE = { "b/s": 8, "kb/s": 8e3, "kib/s": 8192, "mb/s": 8e6, "mib/s": 8388608, "gb/s": 8e9, "bit/s": 1, "kbit/s": 1e3, "mbit/s": 1e6, "gbit/s": 1e9 };
 /** Ordre d'affichage : WAN d'abord, puis LAN, puis le reste par nom. */
 const opnRank = (n) => (/^wan/i.test(n) ? 0 : /^lan/i.test(n) ? 1 : /wan/i.test(n) ? 0.5 : 2);
-const bitrate = (bps) => (bps === null ? "—" : bps >= 1e9 ? `${fmt(bps / 1e9, 2)} Gbit/s` : bps >= 1e6 ? `${fmt(bps / 1e6, bps < 1e7 ? 2 : 1)} Mbit/s` : bps >= 1e3 ? `${fmt(bps / 1e3, 0)} kbit/s` : `${fmt(bps, 0)} bit/s`);
+const bitrate = (bps, fmt) => (bps === null ? "—" : bps >= 1e9 ? `${fmt(bps / 1e9, 2)} Gbit/s` : bps >= 1e6 ? `${fmt(bps / 1e6, bps < 1e7 ? 2 : 1)} Mbit/s` : bps >= 1e3 ? `${fmt(bps / 1e3, 0)} kbit/s` : `${fmt(bps, 0)} bit/s`);
 
 class OpnsenseCard extends HTMLElement {
   static getConfigElement() {
@@ -498,8 +703,7 @@ class OpnsenseCard extends HTMLElement {
   _gwPack(id) {
     const n = (v) => (v === "" || v === undefined || !Number.isFinite(Number(v)) ? null : Number(v));
     return String(this._st(id)?.state || "").split("|").map((row) => row.split(",")).filter((f) => f.length >= 2 && f[0])
-      .map(([name, st, d, l, j]) => ({ key: name, status: id, name, state: opnGw(st), delay: n(d), loss: n(l), jitter: n(j), ip: null }))
-      .sort((a, b) => opnRank(a.name) - opnRank(b.name) || a.name.localeCompare(b.name, "fr"));
+      .map(([name, st, d, l, j]) => ({ key: name, status: id, name, state: st, delay: n(d), loss: n(l), jitter: n(j), ip: null }));
   }
 
   /** Interfaces du package REST : « heure|nom,octets reçus,octets envoyés|… ». La carte calcule les
@@ -537,8 +741,7 @@ class OpnsenseCard extends HTMLElement {
         })
         .catch(() => { /* sans historique : le débit s'affiche au relevé suivant */ });
     }
-    return Object.keys(cur.i).map((name) => ({ key: name, in: id, out: id, name, up: null, rin: tr.rates[name]?.[0] ?? null, rout: tr.rates[name]?.[1] ?? null }))
-      .sort((a, b) => opnRank(a.name) - opnRank(b.name) || a.name.localeCompare(b.name, "fr"));
+    return Object.keys(cur.i).map((name) => ({ key: name, in: id, out: id, name, up: null, rin: tr.rates[name]?.[0] ?? null, rout: tr.rates[name]?.[1] ?? null }));
   }
 
   _bps(id) {
@@ -551,10 +754,17 @@ class OpnsenseCard extends HTMLElement {
   _render() {
     if (!this._config || !this._hass || !this.shadowRoot) return;
     const c = this._config, m = this._resolve();
+    const language = cardLanguage(c.language, this._hass);
+    const text = TEXT[language];
     const ids = [...Object.values(m.roles), ...Object.values(m.ifaces).flatMap((i) => Object.values(i)), ...Object.values(m.gws).flatMap((g) => Object.values(g)), ...m.temps, m.update, m.notices, m.gwAll, m.traffic];
-    const sig = `${c.theme}|${this._hass.themes?.darkMode}|${this._armed}|${Math.floor(Date.now() / 60000)}|` + ids.map((id) => this._st(id)?.state ?? "-").join("|");
+    const sig = `${language}|${c.theme}|${this._hass.themes?.darkMode}|${this._armed}|${Math.floor(Date.now() / 60000)}|` + ids.map((id) => this._st(id)?.state ?? "-").join("|");
     if (sig === this._sig) return;
     this._sig = sig;
+
+    const fmt = (n, digits) => n.toLocaleString(language, {
+      minimumFractionDigits: digits, maximumFractionDigits: digits,
+    });
+    const compareNames = (a, b) => opnRank(a.name) - opnRank(b.name) || a.name.localeCompare(b.name, language);
 
     const sec = (icon, t, body) => (body ? `<div class="srv-sec"><div class="srv-h"><ha-icon icon="${icon}"></ha-icon>${t}</div>${body}</div>` : "");
     const gauge = (id, icon, label, v, sub, warn = 75, alert = 90) => (v === null ? "" : `<div class="srv-g" data-entity="${esc(id)}">
@@ -564,38 +774,47 @@ class OpnsenseCard extends HTMLElement {
 
     const found = Object.keys(m.roles).length || Object.keys(m.gws).length || Object.keys(m.ifaces).length || m.gwAll || m.traffic;
     if (!found) {
-      this.shadowRoot.innerHTML = `${STYLE}${SRV_STYLE}${PVE_STYLE}<ha-card class="${themeClass(c.theme, this._hass)}">
+      this.shadowRoot.innerHTML = `${STYLE}${SRV_STYLE}${PVE_STYLE}<ha-card lang="${language}" class="${themeClass(c.theme, this._hass)}">
         <header><div class="brand"><ha-icon class="srv-icon" icon="${esc(c.icon || "mdi:wall-fire")}" style="color:${esc(c.icon_color || "var(--med-accent, var(--med-blue))")}"></ha-icon><div><div class="title">${esc(c.title || "OPNsense")}</div></div></div></header>
-        <div class="empty">Aucun pare-feu OPNsense trouvé<span>Installez l'intégration OPNsense (HACS : travisghansen/hass-opnsense), ou le package REST fourni avec la carte (packages/opnsense.yaml), puis rechargez la page.</span></div></ha-card>`;
+        <div class="empty">${text.empty}<span>${text.emptyHelp}</span></div></ha-card>`;
       return;
     }
 
     // --- passerelles : la passerelle par défaut d'abord (WAN), puis les autres
     const gwRows = Object.values(m.gws).length ? Object.values(m.gws) : [];
     let gws = gwRows.map((g) => ({ ...g, name: this._label(g.status || g.delay, /Gateway (.+?) (?:status|delay|loss|stddev|address)$/i, g.key),
-      state: opnGw(this._st(g.status)?.state), delay: this._num(g.delay), loss: this._num(g.loss), jitter: this._num(g.stddev), ip: this._st(g.address)?.state }))
-      .sort((a, b) => opnRank(a.name) - opnRank(b.name) || a.name.localeCompare(b.name, "fr"));
+      state: this._st(g.status)?.state, delay: this._num(g.delay), loss: this._num(g.loss), jitter: this._num(g.stddev), ip: this._st(g.address)?.state }));
     if (!gws.length && m.gwAll) gws = this._gwPack(m.gwAll);
-    const gwDown = gws.filter((g) => g.state[1] === "bad"), gwWarn = gws.filter((g) => g.state[1] === "warn");
+    gws = gws.sort(compareNames).map((g) => {
+      const [label, severity] = opnGw(g.state);
+      const unmonitored = severity === "ok" && g.delay === null && g.loss === null && g.jitter === null;
+      return { ...g, severity, statusLabel: unmonitored ? text.unmonitored : label ? text[label] : g.state };
+    });
+    const gwDown = gws.filter((g) => g.severity === "bad"), gwWarn = gws.some((g) => g.severity === "warn");
+    const downCount = gwDown.length ? interpolate(text[gwDown.length === 1 ? "gatewaysDownOne" : "gatewaysDownMany"], { count: fmt(gwDown.length, 0) }) : "";
     const upd = this._st(m.update), updOn = upd?.state === "on";
+    const updStatus = updOn ? text.install : upd?.state === "off" ? text.upToDate
+      : upd?.state === "unavailable" ? text.unavailable : text.unknown;
+    const updClass = upd?.state === "off" ? "ok" : updOn ? "upd" : "na";
     const notice = this._st(m.notices)?.state === "on";
     const leds = [
-      gws.length ? led(!gwDown.length, gwDown.length > 1 ? `${gwDown.length} passerelles hors ligne` : gwDown.length ? `${esc(gwDown[0].name)} hors ligne` : "Passerelles", (gwDown[0] || gws[0]).status) : "",
-      upd ? `<span class="srv-led ${updOn ? "upd" : "ok"}" data-entity="${esc(m.update)}"><i></i>${updOn ? "Mise à jour" : "À jour"}</span>` : "",
-      notice ? led(false, "Alertes", m.notices) : "",
+      gws.length ? led(!gwDown.length, esc(gwDown.length === 1 ? interpolate(text.gatewayDown, { name: gwDown[0].name }) : downCount || text.gateways), (gwDown[0] || gws[0]).status) : "",
+      upd ? `<span class="srv-led ${updClass}" data-entity="${esc(m.update)}"><i></i>${updOn ? text.update : updStatus}</span>` : "",
+      notice ? led(false, text.alerts, m.notices) : "",
     ].join("");
 
     // --- informations
     const boot = this._st(m.roles.boot)?.state;
+    const uptime = boot ? since(boot, text, fmt) : null;
     const inst = upd?.attributes?.installed_version || m.version, last = upd?.attributes?.latest_version;
     const dhcp = this._num(m.roles.dhcp), load = this._num(m.roles.load1);
     const info = c.show_info !== false ? [
-      boot && since(boot) ? `<div class="tile srv-t" data-entity="${esc(m.roles.boot)}"><div class="tile-l"><ha-icon icon="mdi:clock-start"></ha-icon>Uptime</div><div class="tile-v opn-up">${esc(since(boot))}</div></div>` : "",
+      uptime ? `<div class="tile srv-t" data-entity="${esc(m.roles.boot)}"><div class="tile-l"><ha-icon icon="mdi:clock-start"></ha-icon>${text.uptime}</div><div class="tile-v opn-up">${uptime}</div></div>` : "",
       inst || upd ? `<div class="tile srv-t ${updOn ? "opn-upd" : ""}"${m.update ? ` data-entity="${esc(m.update)}"` : ""}><div class="tile-l"><ha-icon icon="${updOn ? "mdi:package-up" : "mdi:package-check"}"></ha-icon>OPNsense</div>
-        <div class="srv-kv"><span>${updOn ? "Dispo" : "Version"}</span><b class="${updOn ? "bad" : ""}">${esc((updOn ? last : inst) || "—")}</b></div>
-        ${upd ? `<div class="srv-kv"><span>État</span><b class="${updOn ? "bad" : "ok"}">${updOn ? "À installer" : "À jour"}</b></div>` : ""}</div>` : "",
-      dhcp !== null ? `<div class="tile srv-t" data-entity="${esc(m.roles.dhcp)}"><div class="tile-l"><ha-icon icon="mdi:devices"></ha-icon>Baux DHCP</div><div class="tile-v">${fmt(dhcp, 0)}</div></div>` : "",
-      load !== null ? `<div class="tile srv-t" data-entity="${esc(m.roles.load1)}"><div class="tile-l"><ha-icon icon="mdi:chart-line"></ha-icon>Charge</div><div class="tile-v">${fmt(load, 2)}</div></div>` : "",
+        <div class="srv-kv"><span>${updOn ? text.available : text.version}</span><b class="${updOn ? "bad" : ""}">${esc((updOn ? last : inst) || "—")}</b></div>
+        ${upd ? `<div class="srv-kv"><span>${text.status}</span><b class="${updOn ? "bad" : updClass}">${updStatus}</b></div>` : ""}</div>` : "",
+      dhcp !== null ? `<div class="tile srv-t" data-entity="${esc(m.roles.dhcp)}"><div class="tile-l"><ha-icon icon="mdi:devices"></ha-icon>${text.dhcp}</div><div class="tile-v">${fmt(dhcp, 0)}</div></div>` : "",
+      load !== null ? `<div class="tile srv-t" data-entity="${esc(m.roles.load1)}"><div class="tile-l"><ha-icon icon="mdi:chart-line"></ha-icon>${text.load}</div><div class="tile-v">${fmt(load, 2)}</div></div>` : "",
     ].filter(Boolean) : [];
 
     // --- ressources
@@ -604,57 +823,64 @@ class OpnsenseCard extends HTMLElement {
     const toGo = (v, u) => (v === null ? null : v / ({ b: 1e9, kb: 1e6, kib: 1048576, mb: 1e3, mib: 1024 / 1.048576, gb: 1, gib: 1 / 1.073741824 }[u.toLowerCase()] || 1e9));
     const res = c.show_resources !== false ? [
       gauge(m.roles.cpu, "mdi:cpu-64-bit", "CPU", this._num(m.roles.cpu), "", 70, 90),
-      gauge(m.roles.mem, "mdi:memory", "RAM", memPct, memUsed !== null && memTot !== null ? `${fmt(toGo(memUsed, memU), 1)} Go / ${fmt(toGo(memTot, memU), 1)} Go` : "", 80, 92),
-      gauge(m.roles.disk, "mdi:harddisk", "Disque", this._num(m.roles.disk), "", 80, 90),
-      gauge(m.roles.pf, "mdi:table-network", "Table d'états", this._num(m.roles.pf), "", 70, 90),
-      gauge(m.roles.mbuf, "mdi:memory-arrow-down", "Tampons réseau", this._num(m.roles.mbuf), m.rest ? "" : "utilisés / alloués", m.rest ? 80 : 101, m.rest ? 95 : 101),
+      gauge(m.roles.mem, "mdi:memory", "RAM", memPct, memUsed !== null && memTot !== null ? `${fmt(toGo(memUsed, memU), 1)} ${text.gigabyte} / ${fmt(toGo(memTot, memU), 1)} ${text.gigabyte}` : "", 80, 92),
+      gauge(m.roles.disk, "mdi:harddisk", text.disk, this._num(m.roles.disk), "", 80, 90),
+      gauge(m.roles.pf, "mdi:table-network", text.stateTable, this._num(m.roles.pf), "", 70, 90),
+      gauge(m.roles.mbuf, "mdi:memory-arrow-down", text.buffers, this._num(m.roles.mbuf), m.rest ? "" : text.usedAllocated, m.rest ? 80 : 101, m.rest ? 95 : 101),
       gauge(m.roles.swap, "mdi:swap-horizontal", "Swap", this._num(m.roles.swap), "", 50, 80),
     ].filter(Boolean) : [];
     const temps = c.show_resources !== false ? m.temps.map((id) => {
       const v = this._num(id);
       if (v === null) return "";
-      const label = this._label(id, /Temp (.+)$/i, id.split("_temp_").pop());
-      return `<div class="tile srv-b ${v >= 80 ? "warn" : ""}" data-entity="${esc(id)}"><ha-icon icon="mdi:thermometer"></ha-icon><div class="tile-l">${esc(label)}</div><div class="srv-bv">${fmt(v, 0)} °C</div></div>`;
+      const attributes = this._st(id).attributes;
+      const unit = attributes?.unit_of_measurement || "°C";
+      const warning = v >= (unit.trim() === "°F" ? 176 : 80);
+      const defaultProbe = m.rest && /^OPNsense Temp Sonde (\d+)$/.exec(attributes?.friendly_name);
+      const label = defaultProbe
+        ? interpolate(text.temperatureProbe, { number: defaultProbe[1] })
+        : this._label(id, /Temp (.+)$/i, id.split("_temp_").pop());
+      return `<div class="tile srv-b ${warning ? "warn" : ""}" data-entity="${esc(id)}"><ha-icon icon="mdi:thermometer"></ha-icon><div class="tile-l">${esc(label)}</div><div class="srv-bv">${fmt(v, 0)} ${esc(unit)}</div></div>`;
     }).filter(Boolean) : [];
 
     // --- passerelles
-    const gwHtml = c.show_gateways !== false ? gws.map((g) => `<div class="opn-gw ${g.state[1]}" data-entity="${esc(g.status || g.delay || "")}">
-        <i class="opn-dot ${g.state[1]}"></i><div class="opn-n"><b>${esc(g.name)}</b><small>${esc(g.state[1] === "ok" && g.delay === null && g.loss === null && g.jitter === null ? "En ligne · sans surveillance" : g.state[0])}${g.ip && !/^(unknown|unavailable|~)$/.test(g.ip) ? ` · ${esc(g.ip)}` : ""}</small></div>
-        <div class="opn-m"><span title="Latence">${g.delay === null ? "—" : `${fmt(g.delay, g.delay < 10 ? 1 : 0)} ms`}</span><span title="Pertes" class="${(g.loss || 0) >= 5 ? "bad" : ""}">${g.loss === null ? "—" : `${fmt(g.loss, 0)} %`}</span><span title="Gigue">${g.jitter === null ? "—" : `± ${fmt(g.jitter, 1)} ms`}</span></div></div>`).join("") : "";
-    const gwHead = gws.length ? `<div class="opn-gh"><span></span><span></span><div class="opn-m"><span>Latence</span><span>Pertes</span><span>Gigue</span></div></div>` : "";
+    const gwHtml = c.show_gateways !== false ? gws.map((g) => `<div class="opn-gw ${g.severity}" data-entity="${esc(g.status || g.delay || "")}">
+        <i class="opn-dot ${g.severity}"></i><div class="opn-n"><b>${esc(g.name)}</b><small>${esc(g.statusLabel)}${g.ip && !/^(unknown|unavailable|~)$/.test(g.ip) ? ` · ${esc(g.ip)}` : ""}</small></div>
+        <div class="opn-m"><span title="${esc(text.latency)}">${g.delay === null ? "—" : `${fmt(g.delay, g.delay < 10 ? 1 : 0)} ms`}</span><span title="${esc(text.loss)}" class="${(g.loss || 0) >= 5 ? "bad" : ""}">${g.loss === null ? "—" : `${fmt(g.loss, 0)} %`}</span><span title="${esc(text.jitter)}">${g.jitter === null ? "—" : `± ${fmt(g.jitter, 1)} ms`}</span></div></div>`).join("") : "";
+    const gwHead = gws.length ? `<div class="opn-gh"><span></span><span></span><div class="opn-m"><span>${text.latency}</span><span>${text.loss}</span><span>${text.jitter}</span></div></div>` : "";
 
     // --- interfaces : débits entrant et sortant
     const want = (Array.isArray(c.interfaces) ? c.interfaces : String(c.interfaces || "").split(/[,\s]+/)).map((x) => String(x).toLowerCase()).filter(Boolean);
     const ifs = Object.values(m.ifaces).filter((i) => (i.in || i.out) && (!want.length || want.includes(i.key.toLowerCase()) || want.includes(this._label(i.in || i.out, /Interface (.+?) Traffic/i, i.key).toLowerCase())))
-      .map((i) => ({ ...i, name: this._label(i.in || i.out || i.status, /Interface (.+?) (?:Traffic|Status)/i, i.key), up: this._st(i.status)?.state, rin: this._bps(i.in), rout: this._bps(i.out) }))
-      .sort((a, b) => opnRank(a.name) - opnRank(b.name) || a.name.localeCompare(b.name, "fr"));
+      .map((i) => ({ ...i, name: this._label(i.in || i.out || i.status, /Interface (.+?) (?:Traffic|Status)/i, i.key), up: this._st(i.status)?.state, rin: this._bps(i.in), rout: this._bps(i.out) }));
     if (!ifs.length && m.traffic) ifs.push(...this._trafPack(m.traffic).filter((i) => !want.length || want.includes(i.name.toLowerCase())));
-    const ifHtml = c.show_interfaces !== false ? ifs.map((i) => {
+    const ifHtml = c.show_interfaces !== false ? ifs.sort(compareNames).map((i) => {
       const down = i.up && !/^(up|active|connected|unknown|unavailable)$/i.test(i.up);
-      return `<div class="opn-if ${down ? "bad" : ""}" data-entity="${esc(i.in || i.out)}"><div class="opn-n"><b>${esc(i.name)}</b><small>${down ? `<span class="bad">Déconnectée</span>` : i.up === null ? "Reçu · envoyé" : "Connectée"}</small></div>
-        <span class="opn-r in" title="Reçu"><ha-icon icon="mdi:arrow-down"></ha-icon>${bitrate(i.rin)}</span><span class="opn-r out" title="Envoyé"><ha-icon icon="mdi:arrow-up"></ha-icon>${bitrate(i.rout)}</span></div>`;
+      const status = i.up === null ? text.receivedSent : /^unavailable$/i.test(i.up) ? text.unavailable
+        : !i.up || /^unknown$/i.test(i.up) ? text.unknown : text.connected;
+      return `<div class="opn-if ${down ? "bad" : ""}" data-entity="${esc(i.in || i.out)}"><div class="opn-n"><b>${esc(i.name)}</b><small>${down ? `<span class="bad">${text.disconnected}</span>` : status}</small></div>
+        <span class="opn-r in" title="${esc(text.received)}"><ha-icon icon="mdi:arrow-down"></ha-icon>${bitrate(i.rin, fmt)}</span><span class="opn-r out" title="${esc(text.sent)}"><ha-icon icon="mdi:arrow-up"></ha-icon>${bitrate(i.rout, fmt)}</span></div>`;
     }).join("") : "";
 
     // --- actions
     const act = (what, icon, label, cls) => {
       const armed = this._armed === what;
-      return `<button class="pve-btn wide ${cls} ${armed ? "armed" : ""}" data-act="${what}" title="${esc(armed ? `${label} : cliquez encore pour confirmer` : label)}" aria-label="${esc(armed ? `Confirmer : ${label}` : label)}"><ha-icon icon="${armed ? "mdi:check-bold" : icon}"></ha-icon>${armed ? "<span>Confirmer</span>" : ""}</button>`;
+      return `<button class="pve-btn wide ${cls} ${armed ? "armed" : ""}" data-act="${what}" title="${esc(armed ? interpolate(text.confirmHint, { action: label }) : label)}" aria-label="${esc(armed ? interpolate(text.confirmAction, { action: label }) : label)}"><ha-icon icon="${armed ? "mdi:check-bold" : icon}"></ha-icon>${armed ? `<span>${text.confirm}</span>` : ""}</button>`;
     };
     // Intégration : services opnsense.* ; package REST : rest_command.opnsense_reboot et opnsense_halt, s'ils sont déclarés
     const svc = this._hass.services || {};
     const can = (what) => (m.rest ? !!svc.rest_command?.[`opnsense_${what}`] : !!svc.opnsense?.[what === "reboot" ? "system_reboot" : "system_halt"]);
-    const acts = c.show_actions !== false ? [can("reboot") ? act("reboot", "mdi:restart", "Redémarrer", "") : "", can("halt") ? act("halt", "mdi:power", "Arrêter", "stop") : ""].join("") : "";
+    const acts = c.show_actions !== false ? [can("reboot") ? act("reboot", "mdi:restart", text.reboot, "") : "", can("halt") ? act("halt", "mdi:power", text.halt, "stop") : ""].join("") : "";
 
-    const sub = [inst ? `OPNsense ${inst}` : m.model, gws.length ? (gwDown.length ? `${gwDown.length} passerelle${gwDown.length > 1 ? "s" : ""} hors ligne` : gwWarn.length ? "passerelle dégradée" : "Internet OK") : ""].filter(Boolean).join(" · ");
+    const sub = [inst ? `OPNsense ${inst}` : m.model, gws.length ? (downCount || (gwWarn ? text.gatewayDegraded : text.internetOk)) : ""].filter(Boolean).join(" · ");
     const body = [
-      c.show_info !== false && info.length ? sec("mdi:information-outline", "Informations", `<div class="tiles srv-tiles">${info.join("")}</div>`) : "",
-      res.length || temps.length ? sec("mdi:speedometer", "Ressources", `${res.length ? `<div class="srv-grid pve-res opn-res">${res.join("")}</div>` : ""}${temps.length ? `<div class="tiles srv-tiles opn-tm">${temps.join("")}</div>` : ""}`) : "",
-      sec("mdi:router-network", "Passerelles", gwHtml ? `<div class="opn-list">${gwHead}${gwHtml}</div>` : ""),
-      sec("mdi:swap-vertical", "Interfaces", ifHtml ? `<div class="opn-list">${ifHtml}</div>` : ""),
-      sec("mdi:gesture-tap-button", "Actions", acts ? `<div class="pve-na">${acts}</div><div class="srv-gs pve-guard"><ha-icon icon="mdi:alert-outline"></ha-icon>Le redémarrage coupe Internet le temps du démarrage (et Home Assistant s'il passe par ce pare-feu).</div>` : ""),
+      c.show_info !== false && info.length ? sec("mdi:information-outline", text.info, `<div class="tiles srv-tiles">${info.join("")}</div>`) : "",
+      res.length || temps.length ? sec("mdi:speedometer", text.resources, `${res.length ? `<div class="srv-grid pve-res opn-res">${res.join("")}</div>` : ""}${temps.length ? `<div class="tiles srv-tiles opn-tm">${temps.join("")}</div>` : ""}`) : "",
+      sec("mdi:router-network", text.gateways, gwHtml ? `<div class="opn-list">${gwHead}${gwHtml}</div>` : ""),
+      sec("mdi:swap-vertical", text.interfaces, ifHtml ? `<div class="opn-list">${ifHtml}</div>` : ""),
+      sec("mdi:gesture-tap-button", text.actions, acts ? `<div class="pve-na">${acts}</div><div class="srv-gs pve-guard"><ha-icon icon="mdi:alert-outline"></ha-icon>${text.rebootWarning}</div>` : ""),
     ].join("");
     const alertCls = gwDown.length ? "srv-alert" : "";
-    this.shadowRoot.innerHTML = `${STYLE}${SRV_STYLE}${PVE_STYLE}${OPN_STYLE}<ha-card class="${themeClass(c.theme, this._hass)} ${alertCls}">
+    this.shadowRoot.innerHTML = `${STYLE}${SRV_STYLE}${PVE_STYLE}${OPN_STYLE}<ha-card lang="${language}" class="${themeClass(c.theme, this._hass)} ${alertCls}">
       <header>
         <div class="brand"><ha-icon class="srv-icon" icon="${esc(c.icon || "mdi:wall-fire")}" style="color:${esc(c.icon_color || "var(--med-accent, var(--med-blue))")}"></ha-icon>
           <div><div class="title">${esc(m.name)}</div>${sub ? `<div class="sub">${esc(sub)}</div>` : ""}</div></div>
@@ -702,23 +928,64 @@ const OPN_SCHEMA = [
   { name: "show_gateways", selector: { boolean: {} } },
   { name: "show_interfaces", selector: { boolean: {} } },
   { name: "show_actions", selector: { boolean: {} } },
-  THEME_SELECT,
 ];
-const OPN_LABELS = {
-  title: "Titre (vide = nom du pare-feu)",
-  icon: "Icône",
-  icon_color: "Couleur de l'icône",
-  device: "Pare-feu OPNsense (vide = le premier)",
-  prefix: "Sans intégration : début du nom des capteurs du package REST (vide = opnsense)",
-  interfaces: "Interfaces affichées (vide = toutes celles qui ont des débits)",
-  show_info: "Section Informations (uptime, version, baux DHCP, charge)",
-  show_resources: "Section Ressources (CPU, RAM, disque, tables, températures)",
-  show_gateways: "Section Passerelles (état, latence, pertes)",
-  show_interfaces: "Section Interfaces (débits)",
-  show_actions: "Boutons redémarrer et arrêter (deux clics)",
-  theme: "Couleurs de la carte",
-};
-const OpnsenseCardEditor = makeEditor(OPN_SCHEMA, OPN_LABELS, OPN_DEFAULTS);
+const select = (name, options) => ({ name, selector: { select: { mode: "dropdown", options } } });
+
+/** Éditeur visuel : formulaire Home Assistant construit à partir du schéma. */
+class OpnsenseCardEditor extends HTMLElement {
+  setConfig(config) {
+    this._config = { ...config };
+    this._draw();
+  }
+
+  set hass(hass) {
+    this._hass = hass;
+    this._draw();
+  }
+
+  _draw() {
+    if (!this._hass || !this._config) return;
+    if (!this._form) {
+      this._form = document.createElement("ha-form");
+      this._form.addEventListener("value-changed", (ev) => {
+        const v = { ...ev.detail.value };
+        // Keep the original YAML value when another field changes.
+        if (v.language === normalizeLanguage(this._config.language)) {
+          if (Object.hasOwn(this._config, "language")) v.language = this._config.language;
+          else delete v.language;
+        }
+        this.setConfig(v);
+        this.dispatchEvent(new CustomEvent("config-changed", { detail: { config: v }, bubbles: true, composed: true }));
+      });
+      this.appendChild(this._form);
+    }
+    const language = cardLanguage(this._config.language, this._hass);
+    if (language !== this._language) {
+      this._language = language;
+      this._form.lang = language;
+      const text = TEXT[language];
+      this._form.computeLabel = (field) => text.editor[field.name] || field.name;
+      this._form.computeHelper = (field) => field.name === "language" ? text.languageHelp : undefined;
+      this._form.schema = [
+        ...OPN_SCHEMA,
+        select("theme", [
+          { value: "v2", label: text.themeV2 },
+          { value: "auto", label: text.themeAuto },
+          { value: "ha", label: text.themeHa },
+        ]),
+        select("language", [
+          { value: "auto", label: text.languageAuto },
+          ...Object.entries(LANGUAGE_NAMES).map(([value, label]) => ({ value, label })),
+        ]),
+      ];
+    }
+    this._form.hass = this._hass;
+    if (this._formConfig !== this._config) {
+      this._formConfig = this._config;
+      this._form.data = { ...OPN_DEFAULTS, ...this._config, language: normalizeLanguage(this._config.language) };
+    }
+  }
+}
 
 /* ---------------------------------------------------------- enregistrement */
 
@@ -729,8 +996,9 @@ if (typeof customElements !== "undefined") {
   if (!window.customCards.some((c) => c.type === "opnsense-card")) {
     window.customCards.push({
       type: "opnsense-card",
-      name: "Carte OPNsense",
-      description: "Pare-feu OPNsense : passerelles (état, latence, pertes), débits des interfaces, CPU, RAM, table d'états, températures, mise à jour, redémarrage confirmé.",
+      // The card picker has no card configuration yet.
+      get name() { return TEXT[cardLanguage("auto", { language: document.documentElement.lang })].cardName; },
+      get description() { return TEXT[cardLanguage("auto", { language: document.documentElement.lang })].cardDescription; },
       preview: true,
     });
   }

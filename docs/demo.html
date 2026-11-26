@@ -103,6 +103,8 @@
         <button data-v="dark"><i class="sw blue"></i>Sombre</button><button data-v="light"><i class="sw white"></i>Clair</button></div></div>
       <div class="ctl"><div class="ctl-l">Couleurs de la carte (<code>theme</code>)</div><div class="seg" data-key="theme">
         <button data-v="v2">MyElectricalData</button><button data-v="auto">MyElectricalData auto</button><button data-v="ha">Thème Home Assistant</button></div></div>
+      <div class="ctl"><div class="ctl-l">Langue de la carte (<code>language</code>)</div><div class="seg" data-key="language">
+        <button data-v="auto" title="Utilise la langue du navigateur dans la démo">Automatique</button><button data-v="fr" lang="fr">Français</button><button data-v="en" lang="en">English</button><button data-v="it" lang="it">Italiano</button></div></div>
       <div class="ctl"><div class="ctl-l">Largeur</div><div class="seg" data-key="width">
         <button data-v="mobile">Téléphone</button><button data-v="large">PC</button></div></div>
     </aside>
@@ -147,7 +149,7 @@
     });
   }
 
-  const defaults = { opn: "ok", src: "int", page: "dark", theme: "v2", width: "mobile" };
+  const defaults = { opn: "ok", src: "int", page: "dark", theme: "v2", language: "fr", width: "mobile" };
   let state = { ...defaults };
   try { state = { ...defaults, ...JSON.parse(localStorage.getItem("opnsense-card-demo") || "{}") }; } catch (e) { /* ignoré */ }
   const D = 86400e3;
@@ -224,7 +226,7 @@
     const { st, ent, devices } = build();
     const services = state.src === "rest" ? { rest_command: { opnsense_reboot: {}, opnsense_halt: {} } } : { opnsense: { system_reboot: {}, system_halt: {} } };
     return {
-      states: st, entities: ent, devices, services, themes: { darkMode: state.page === "dark" }, language: "fr",
+      states: st, entities: ent, devices, services, themes: { darkMode: state.page === "dark" }, language: navigator.language,
       callService: (domain, service) => {
         toast.textContent = `Démo : ${domain}.${service} (rien n'est envoyé ici).`;
         toast.classList.add("on");
@@ -237,7 +239,7 @@
   }
 
   function configs() {
-    return [{ type: "custom:opnsense-card", theme: state.theme }];
+    return [{ type: "custom:opnsense-card", theme: state.theme, language: state.language }];
   }
 
   function render(rebuild) {
@@ -245,7 +247,7 @@
     frame.dataset.width = state.width;
     document.querySelectorAll(".seg").forEach((seg) => seg.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === state[seg.dataset.key]))));
     const list = configs();
-    document.getElementById("yaml").textContent = `type: custom:opnsense-card${state.theme !== "v2" ? `\ntheme: ${state.theme}` : ""}`;
+    document.getElementById("yaml").textContent = `type: custom:opnsense-card${state.theme !== "v2" ? `\ntheme: ${state.theme}` : ""}\nlanguage: ${state.language}`;
     if (!customElements.get("opnsense-card")) return;
     // la carte garde les relevés de trafic : on la recrée quand la source ou la situation change
     const key = state.src + state.opn;
