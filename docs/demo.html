@@ -247,7 +247,7 @@
     frame.dataset.width = state.width;
     document.querySelectorAll(".seg").forEach((seg) => seg.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.v === state[seg.dataset.key]))));
     const list = configs();
-    document.getElementById("yaml").textContent = `type: custom:opnsense-card${state.theme !== "v2" ? `\ntheme: ${state.theme}` : ""}\nlanguage: ${state.language}`;
+    document.getElementById("yaml").textContent = `type: custom:opnsense-card${state.theme !== "v2" ? `\ntheme: ${state.theme}` : ""}${state.language !== "fr" ? `\nlanguage: ${state.language}` : ""}`;
     if (!customElements.get("opnsense-card")) return;
     // la carte garde les relevés de trafic : on la recrée quand la source ou la situation change
     const key = state.src + state.opn;
