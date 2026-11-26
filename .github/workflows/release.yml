@@ -35,6 +35,8 @@ jobs:
           node-version: 20
       - name: Syntaxe JavaScript
         run: node --check opnsense-card.js
+      - name: Tests de la carte
+        run: node --test
       - name: Version de la carte
         id: v
         run: |
