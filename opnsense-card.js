@@ -246,17 +246,16 @@ const TEXT = {
 
 const LANGUAGE_NAMES = { fr: "Français", en: "English", it: "Italiano" };
 
+/** Équivalent d'Object.hasOwn, absent des navigateurs plus anciens (Safari < 15.4, Chrome < 93). */
+const hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
+
+/** Langue de base d'une balise (« it-IT » → « it »). Une balise invalide ou non traduite revient au français. */
 const normalizeLanguage = (value) => {
   if (typeof value !== "string") return "fr";
   const tag = value.trim().replace(/_/g, "-").toLowerCase();
   if (tag === "auto") return tag;
-  try {
-    const { language } = new Intl.Locale(tag);
-    if (Object.hasOwn(TEXT, language)) return language;
-  } catch {
-    // An invalid locale falls back to French.
-  }
-  return "fr";
+  const base = /^([a-z]{2,3})(?:-[a-z0-9]{1,8})*$/.exec(tag)?.[1];
+  return base && hasOwn(TEXT, base) ? base : "fr";
 };
 
 const cardLanguage = (value, hass) => {
@@ -581,7 +580,7 @@ const OPN_GW = {
 };
 const opnGw = (state) => {
   const key = String(state || "unknown").toLowerCase().replace(/[+\s]+/g, "_");
-  return Object.hasOwn(OPN_GW, key) ? OPN_GW[key] : [null, "off"];
+  return hasOwn(OPN_GW, key) ? OPN_GW[key] : [null, "off"];
 };
 /** Débit en bit/s d'un capteur, selon son unité (kB/s par défaut de l'intégration, ou converti par Home Assistant). */
 const OPN_RATE = { "b/s": 8, "kb/s": 8e3, "kib/s": 8192, "mb/s": 8e6, "mib/s": 8388608, "gb/s": 8e9, "bit/s": 1, "kbit/s": 1e3, "mbit/s": 1e6, "gbit/s": 1e9 };
@@ -951,7 +950,7 @@ class OpnsenseCardEditor extends HTMLElement {
         const v = { ...ev.detail.value };
         // Keep the original YAML value when another field changes.
         if (v.language === normalizeLanguage(this._config.language)) {
-          if (Object.hasOwn(this._config, "language")) v.language = this._config.language;
+          if (hasOwn(this._config, "language")) v.language = this._config.language;
           else delete v.language;
         }
         this.setConfig(v);

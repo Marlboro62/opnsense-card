@@ -31,7 +31,7 @@
 [![HACS Default](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://hacs.xyz/)
 [![Release](https://img.shields.io/github/v/release/Marlboro62/opnsense-card)](https://github.com/Marlboro62/opnsense-card/releases)
 
-Carte Lovelace pour suivre un pare-feu **OPNsense** dans Home Assistant : passerelles, débits des interfaces, ressources, mise à jour, redémarrage. Elle a le style des cartes MyElectricalData new ([Carte Enedis Linky New](https://github.com/Marlboro62/content-card-linky-new)) et des [Cartes Serveur HA](https://github.com/Marlboro62/serveur-ha-card) : thème bleu nuit, version claire, ou thème Home Assistant.
+Carte Lovelace pour suivre un pare-feu **OPNsense** dans Home Assistant : passerelles, débits des interfaces, ressources, mise à jour, redémarrage. Elle a le style des cartes MyElectricalData new ([Carte Enedis Linky New](https://github.com/Marlboro62/content-card-linky-new)) et des [Cartes Serveur HA](https://github.com/Marlboro62/serveur-ha-card) : thème bleu nuit, version claire, ou thème Home Assistant. Elle s'affiche **en français, en anglais ou en italien**, ou dans la langue de votre profil Home Assistant (option `language`).
 
 **Aucune dépendance** : pas de button-card ni de card-mod. Les capteurs sont **détectés automatiquement**, et chaque élément sans capteur est simplement masqué.
 
@@ -93,7 +93,7 @@ Puis ajoutez la carte :
 type: custom:opnsense-card
 ```
 
-La carte a un **éditeur visuel**.
+La carte a un **éditeur visuel**, traduit lui aussi : il suit la langue choisie dans l'option `language`.
 
 ## Avec l'intégration OPNsense (HACS)
 
@@ -159,6 +159,7 @@ Exemple :
 
 ```yaml
 type: custom:opnsense-card
+title: Pare-feu
 language: it
 interfaces:
   - WAN
@@ -166,7 +167,8 @@ interfaces:
 show_actions: false
 ```
 
-Les variantes régionales `fr-FR`, `en-US`, `en-GB` et `it-IT` utilisent la traduction
+Sans option `language`, la carte reste en français, comme avant la version 0.3.0.
+Les variantes régionales (`fr-FR`, `en-US`, `en-GB`, `it-IT`…) utilisent la traduction
 de leur langue de base. Une langue non prise en charge ou une valeur invalide revient au français. Le
 sélecteur de l'éditeur met l'aperçu à jour immédiatement. Avec `auto`, la démo utilise la
 langue du navigateur pour simuler celle du profil Home Assistant.

@@ -5,6 +5,9 @@ const { test } = require("node:test");
 const { runInNewContext } = require("node:vm");
 
 const source = readFileSync(join(__dirname, "../opnsense-card.js"), "utf8");
+// La carte est enveloppée dans une fonction immédiate : on y ajoute « return TEXT; » pour lire les traductions.
+const IIFE_END = /\}\)\(\);\s*$/;
+assert.match(source, IIFE_END, "opnsense-card.js doit se terminer par « })(); » pour que les tests puissent le charger");
 
 class Element extends EventTarget {
   appendChild(child) { this.child = child; }
@@ -20,7 +23,7 @@ function loadCard() {
   const window = {};
   const timers = new Map();
   let timerId = 0;
-  const text = runInNewContext(source.replace(/\}\)\(\);\s*$/, "return TEXT;})();"), {
+  const text = runInNewContext(source.replace(IIFE_END, "return TEXT;})();"), {
     document, window, HTMLElement: Element, Event, CustomEvent,
     customElements: { get: (tag) => elements.get(tag), define: (tag, ctor) => elements.set(tag, ctor) },
     console: { info: () => {} },
