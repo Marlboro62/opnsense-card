@@ -45,7 +45,7 @@ Carte Lovelace pour suivre un pare-feu **OPNsense** dans Home Assistant : passer
 
 *Aperçus réalisés avec la démo et des valeurs fictives (noms, adresses IP et débits inventés).*
 
-**[▶ Essayer la démo en ligne](https://marlboro62.github.io/opnsense-card/docs/demo.html)** : pare-feu normal, chargé avec une mise à jour, ou WAN hors ligne, avec l'intégration ou le package REST, en français ou en italien, en sombre ou clair, sur téléphone ou PC.
+**[▶ Essayer la démo en ligne](https://marlboro62.github.io/opnsense-card/docs/demo.html)** : pare-feu normal, chargé avec une mise à jour, ou WAN hors ligne, avec l'intégration ou le package REST, en français, en anglais ou en italien, en sombre ou clair, sur téléphone ou PC.
 
 ## Ce qu'elle affiche
 
@@ -152,7 +152,7 @@ Les adresses de l'API du package sont celles d'OPNsense 25.7 et plus récent ; p
 | `prefix` | Package REST : début du nom des capteurs, si vous les avez renommés | `opnsense` |
 | `interfaces` | Interfaces affichées (nom, par exemple `WAN`, `LAN`) | toutes |
 | `show_info`, `show_resources`, `show_gateways`, `show_interfaces`, `show_actions` | Afficher chaque partie | `true` |
-| `language` | Langue de la carte et de son éditeur : `fr`, `it` ou `auto` (langue du profil Home Assistant) | `fr` |
+| `language` | Langue de la carte et de son éditeur : `fr` (français), `en` (anglais), `it` (italien) ou `auto` (langue du profil Home Assistant) | `fr` |
 | `theme` | `v2` (bleu nuit MyElectricalData), `auto` (clair ou sombre selon Home Assistant) ou `ha` (thème Home Assistant) | `v2` |
 
 Exemple :
@@ -166,8 +166,8 @@ interfaces:
 show_actions: false
 ```
 
-Les variantes régionales comme `fr-FR` et `it-IT` utilisent respectivement le français et
-l'italien. Une langue non prise en charge ou une valeur invalide revient au français. Le
+Les variantes régionales `fr-FR`, `en-US`, `en-GB` et `it-IT` utilisent la traduction
+de leur langue de base. Une langue non prise en charge ou une valeur invalide revient au français. Le
 sélecteur de l'éditeur met l'aperçu à jour immédiatement. Avec `auto`, la démo utilise la
 langue du navigateur pour simuler celle du profil Home Assistant.
 

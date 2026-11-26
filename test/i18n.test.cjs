@@ -93,9 +93,14 @@ function rest() {
 test("language defaults, explicit values, regional tags and auto fallback", () => {
   const Card = loadCard().Card;
   const cases = [
-    [{}, { language: "it" }, "fr"],
+    [{}, { language: "en-GB" }, "fr"],
     [{ language: "fr" }, { language: "it" }, "fr"],
     [{ language: "it" }, { language: "fr" }, "it"],
+    [{ language: "en" }, { language: "fr" }, "en"],
+    [{ language: "en-GB" }, {}, "en"],
+    [{ language: "en-US" }, {}, "en"],
+    [{ language: "auto" }, { locale: { language: "en-GB" }, language: "fr" }, "en"],
+    [{ language: "auto" }, { language: "en-US" }, "en"],
     [{ language: " IT-it " }, {}, "it"],
     [{ language: "fr-FR" }, {}, "fr"],
     [{ language: "auto" }, { locale: { language: "it-IT" }, language: "fr" }, "it"],
@@ -103,7 +108,7 @@ test("language defaults, explicit values, regional tags and auto fallback", () =
     [{ language: "auto" }, { language: "de-DE" }, "fr"],
     [{ language: "auto" }, {}, "fr"],
   ];
-  for (const invalid of [null, 42, {}, ["it"], true, "", "it-", "en-US", "constructor"]) {
+  for (const invalid of [null, 42, {}, ["it"], true, "", "it-", "en-", "de-DE", "constructor"]) {
     cases.push([{ language: invalid }, { language: "it" }, "fr"]);
   }
   for (const [config, hass, expected] of cases) {
@@ -115,6 +120,9 @@ test("auto changes the rendered locale with unchanged sensor data", () => {
   const hass = integration();
   const card = render({ language: "auto" }, hass);
   assert.match(markup(card), /Informazioni/);
+  card.hass = { ...hass, language: "en-GB" };
+  assert.match(markup(card), /<ha-card lang="en"/);
+  assert.match(markup(card), /DHCP leases/);
   card.hass = { ...hass, language: "fr-FR" };
   assert.match(markup(card), /Informations/);
   assert.doesNotMatch(markup(card), /Informazioni/);
@@ -132,7 +140,9 @@ test("editor updates labels, helper, options and preview via config-changed", ()
   const field = (name) => form.schema.find((item) => item.name === name);
   assert.equal(form.data.language, "fr");
   assert.equal(form.computeLabel(field("language")), "Langue de la carte");
-  assert.deepEqual(Array.from(field("language").selector.select.options, ({ value }) => value), ["auto", "fr", "it"]);
+  assert.deepEqual(Array.from(field("language").selector.select.options, ({ value, label }) => `${value}: ${label}`), [
+    "auto: Automatique (Home Assistant)", "fr: Français", "en: English", "it: Italiano",
+  ]);
   let emitted;
   editor.addEventListener("config-changed", (ev) => {
     assert.equal(ev.bubbles && ev.composed, true);
@@ -142,6 +152,11 @@ test("editor updates labels, helper, options and preview via config-changed", ()
   const change = (patch) => form.dispatchEvent(new CustomEvent("value-changed", { detail: { value: { ...form.data, ...patch } } }));
   change({ title: "Firewall personale" });
   assert.equal(Object.hasOwn(emitted, "language"), false);
+  change({ language: "en" });
+  assert.equal(emitted.language, "en");
+  assert.equal(languageOf(preview), "en");
+  assert.equal(form.computeLabel(field("language")), "Card language");
+  assert.match(form.computeHelper(field("language")), /Home Assistant profile language/);
   change({ language: "it" });
   assert.equal(emitted.language, "it");
   assert.equal(languageOf(preview), "it");
@@ -161,6 +176,8 @@ test("editor updates labels, helper, options and preview via config-changed", ()
   assert.equal(emitted.language, "fr");
   assert.equal(languageOf(preview), "fr");
   assert.equal(window.customCards[0].name, "Carte OPNsense");
+  document.documentElement.lang = "en-GB";
+  assert.equal(window.customCards[0].name, "OPNsense Card");
   document.documentElement.lang = "it-IT";
   assert.equal(window.customCards[0].name, "Scheda OPNsense");
   assert.match(window.customCards[0].description, /interfacce/);
@@ -280,6 +297,24 @@ test("missing and unavailable entities render safely in the selected language", 
   assert.match(markup(render({}, { states: {} })), /Aucun pare-feu OPNsense trouvé/);
 });
 
+test("English formats counts, decimals, uptime and rates with localized labels", () => {
+  const card = render({ language: "auto" }, { ...integration(), language: "en-US" });
+  const html = markup(card);
+  assert.match(html, /DHCP leases/);
+  assert.match(html, /12,345/);
+  assert.match(html, /3 d 4 h/);
+  assert.match(html, /4\.2 GB \/ 16\.0 GB/);
+  assert.match(html, /1\.25/);
+  assert.match(html, /5\.00 Mbit\/s/);
+  assert.match(html, /Latency and packet loss/);
+  assert.match(html, /Ready to install/);
+  assert.doesNotMatch(html, /Passerelles|Baux DHCP|undefined/);
+  const englishGateways = markup(render({ language: "en-GB", prefix: "other" }, rest()));
+  const names = [...englishGateways.matchAll(/class="opn-gw [^"]+"[^>]+>\s*<i[^>]+><\/i><div class="opn-n"><b>([^<]+)/g)]
+    .map(([, name]) => name);
+  assert.deepEqual(names, ["WAN", "LAN", "alpha", "ÉCHO"]);
+});
+
 test("each locale has all French keys and the same interpolation variables", () => {
   const { text } = loadCard();
   function check(reference, translation) {
@@ -294,5 +329,6 @@ test("each locale has all French keys and the same interpolation variables", () 
       }
     }
   }
+  assert.deepEqual(Object.keys(text).sort(), ["en", "fr", "it"]);
   for (const locale of Object.values(text)) check(text.fr, locale);
 });
