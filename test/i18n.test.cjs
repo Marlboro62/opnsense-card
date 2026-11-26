@@ -255,6 +255,17 @@ test("actions require two clicks and keep their service targets in both data mod
   }
 });
 
+test("temperature keeps its sensor unit and the same warning threshold in Celsius and Fahrenheit", () => {
+  const hass = integration();
+  const id = "sensor.fb_temp_cpu";
+  const card = render({ language: "it" }, hass);
+  for (const [value, unit, expected] of [[80, "°C", "warn"], [175, "°F", ""], [176, "°F", "warn"]]) {
+    hass.states[id] = state(value, { unit_of_measurement: unit });
+    card.hass = hass;
+    assert.match(markup(card), new RegExp(`class="tile srv-b ${expected}" data-entity="${id}"[^>]*>.*>${value} ${unit}<`));
+  }
+});
+
 test("missing and unavailable entities render safely in the selected language", () => {
   const hass = integration();
   hass.states["sensor.fb_gateway_wan_status"] = state("unavailable");

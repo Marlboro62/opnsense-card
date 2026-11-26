@@ -757,11 +757,13 @@ class OpnsenseCard extends HTMLElement {
       const v = this._num(id);
       if (v === null) return "";
       const attributes = this._st(id).attributes;
+      const unit = attributes?.unit_of_measurement || "°C";
+      const warning = v >= (unit.trim() === "°F" ? 176 : 80);
       const defaultProbe = m.rest && /^OPNsense Temp Sonde (\d+)$/.exec(attributes?.friendly_name);
       const label = defaultProbe
         ? interpolate(text.temperatureProbe, { number: defaultProbe[1] })
         : this._label(id, /Temp (.+)$/i, id.split("_temp_").pop());
-      return `<div class="tile srv-b ${v >= 80 ? "warn" : ""}" data-entity="${esc(id)}"><ha-icon icon="mdi:thermometer"></ha-icon><div class="tile-l">${esc(label)}</div><div class="srv-bv">${fmt(v, 0)} ${esc(attributes?.unit_of_measurement || "°C")}</div></div>`;
+      return `<div class="tile srv-b ${warning ? "warn" : ""}" data-entity="${esc(id)}"><ha-icon icon="mdi:thermometer"></ha-icon><div class="tile-l">${esc(label)}</div><div class="srv-bv">${fmt(v, 0)} ${esc(unit)}</div></div>`;
     }).filter(Boolean) : [];
 
     // --- passerelles
