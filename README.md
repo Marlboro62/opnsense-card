@@ -45,14 +45,14 @@ Carte Lovelace pour suivre un pare-feu **OPNsense** dans Home Assistant : passer
 
 *Aperçus réalisés avec la démo et des valeurs fictives (noms, adresses IP et débits inventés).*
 
-**[▶ Essayer la démo en ligne](https://marlboro62.github.io/opnsense-card/docs/demo.html)** : pare-feu normal, chargé avec une mise à jour, ou WAN hors ligne, avec l'intégration ou le package REST, en sombre ou clair, sur téléphone ou PC.
+**[▶ Essayer la démo en ligne](https://marlboro62.github.io/opnsense-card/docs/demo.html)** : pare-feu normal, chargé avec une mise à jour, ou WAN hors ligne, avec l'intégration ou le package REST, en français ou en italien, en sombre ou clair, sur téléphone ou PC.
 
 ## Ce qu'elle affiche
 
 - **En-tête** : nom et version, état d'Internet, voyants **Passerelles** (rouge si une passerelle est hors ligne), **Mise à jour** et **Alertes** (notifications en attente dans OPNsense). La carte prend une bordure rouge quand une passerelle tombe.
 - **Informations** : uptime, version installée ou disponible, baux DHCP, charge du processeur.
 - **Ressources** : CPU, RAM (utilisée / totale), disque, table d'états pf, tampons réseau (mbuf), swap, et les températures remontées par OPNsense.
-- **Passerelles** : état en français (en ligne, latence, pertes, hors ligne), latence, pertes et gigue, le WAN en premier.
+- **Passerelles** : état (en ligne, latence, pertes, hors ligne), latence, pertes et gigue, le WAN en premier.
 - **Interfaces** : débit reçu et envoyé de chaque interface, en kbit/s, Mbit/s ou Gbit/s, et interface déconnectée en rouge.
 - **Actions** : **Redémarrer** et **Arrêter** le pare-feu, avec **un second clic dans les 5 secondes** pour confirmer.
 
@@ -152,18 +152,36 @@ Les adresses de l'API du package sont celles d'OPNsense 25.7 et plus récent ; p
 | `prefix` | Package REST : début du nom des capteurs, si vous les avez renommés | `opnsense` |
 | `interfaces` | Interfaces affichées (nom, par exemple `WAN`, `LAN`) | toutes |
 | `show_info`, `show_resources`, `show_gateways`, `show_interfaces`, `show_actions` | Afficher chaque partie | `true` |
+| `language` | Langue de la carte et de son éditeur : `fr`, `it` ou `auto` (langue du profil Home Assistant) | `fr` |
 | `theme` | `v2` (bleu nuit MyElectricalData), `auto` (clair ou sombre selon Home Assistant) ou `ha` (thème Home Assistant) | `v2` |
 
 Exemple :
 
 ```yaml
 type: custom:opnsense-card
-title: Pare-feu
+language: it
 interfaces:
   - WAN
   - LAN
 show_actions: false
 ```
+
+Les variantes régionales comme `fr-FR` et `it-IT` utilisent respectivement le français et
+l'italien. Une langue non prise en charge ou une valeur invalide revient au français. Le
+sélecteur de l'éditeur met l'aperçu à jour immédiatement. Avec `auto`, la démo utilise la
+langue du navigateur pour simuler celle du profil Home Assistant.
+
+Les noms personnalisés, les noms des passerelles et les noms des interfaces sont conservés.
+Le sélecteur de cartes, les contrôles natifs de l'éditeur et les notifications de services
+suivent la langue de Home Assistant.
+
+### Ajouter une traduction
+
+Dans [`opnsense-card.js`](opnsense-card.js), ajoutez le code de la langue à `TEXT` et son
+nom natif à `LANGUAGE_NAMES`. Reprenez toutes les clés de `fr`, y compris celles de
+`editor`, et conservez les variables telles que `{count}` et `{name}`. Le code de langue
+sert également à formater les nombres et à trier les passerelles et les interfaces.
+Lancez `node --test` (Node.js 20) pour vérifier notamment la parité des clés et des variables.
 
 ## Support
 
